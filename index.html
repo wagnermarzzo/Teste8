@@ -1,0 +1,60 @@
+document.getElementById('agendamentoForm').addEventListener('submit', function(event) {
+    // Obter a data e o horário selecionados
+    let dataSelecionada = new Date(document.getElementById('data').value);
+    let hora = document.getElementById('horario').value;
+
+    // Definir os horários válidos para agendamento
+    let horariosValidosSexta = ["Sexta-feira 18:00", "Sexta-feira 19:00"];
+    let horariosValidosSabado = ["Sábado 07:00", "Sábado 09:00", "Sábado 11:00", "Sábado 14:00", "Sábado 17:00", "Sábado 19:00"];
+
+    // Verificar se a data está correta
+    let diaSemana = dataSelecionada.getDay(); // 5 para sexta-feira, 6 para sábado
+    let dataHoje = new Date();
+
+    // A data de hoje deve ser menor ou igual à data selecionada
+    if (dataSelecionada < dataHoje) {
+        alert("Não é permitido agendar para datas passadas.");
+        event.preventDefault();
+        return;
+    }
+
+    // Verificar se o dia é sexta ou sábado
+    if (diaSemana !== 5 && diaSemana !== 6) {
+        alert("Somente é permitido agendamento para sexta-feira ou sábado.");
+        event.preventDefault();
+        return;
+    }
+
+    // Verificar se o horário está dentro das opções válidas
+    if (diaSemana === 5 && !horariosValidosSexta.includes(hora)) {
+        alert("Selecione um horário válido para sexta-feira.");
+        event.preventDefault();
+        return;
+    }
+
+    if (diaSemana === 6 && !horariosValidosSabado.includes(hora)) {
+        alert("Selecione um horário válido para sábado.");
+        event.preventDefault();
+        return;
+    }
+
+    // Verificação para evitar agendamento no mesmo horário
+    let agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+    let agendamentoExistente = agendamentos.find(agendamento => agendamento.data === document.getElementById('data').value && agendamento.horario === hora);
+
+    if (agendamentoExistente) {
+        alert("Este horário já está agendado. Por favor, escolha outro horário.");
+        event.preventDefault();
+        return;
+    }
+
+    // Se o agendamento for válido, adicionar aos agendamentos e salvar no localStorage
+    agendamentos.push({
+        nome: document.getElementById('nome').value,
+        data: document.getElementById('data').value,
+        horario: hora,
+        servico: document.getElementById('servico').value
+    });
+
+    localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+});
